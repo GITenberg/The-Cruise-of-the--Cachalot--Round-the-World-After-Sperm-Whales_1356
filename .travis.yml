@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Jf9kRZARGKkvwURJD5k31b9JEbGn3u0tvkwtbKP01AYJu2jItuYwDlWbNrA6T4RcxFyVH+a78sNwyFnswsVtxQidcmqU+1Bq3/j7Z1LMn/ml4cjL4PpLCslc/+Vu8VPmMpIiKibfugoZMeWF4vckXDnlzBKh4hL02hEh0KmXYI7dU9Tilk8nwdtwD6Qw87XRPXzeAkEveYmvx7oWSkZnMpdpbrut7LkAwz/KCEmXZutPdjK+/tLFbyiKjlVAVEtZV5pr7ZUBIyn6mxCRgxV8JLN+WTKi2mXXpYo+ZnM7Pa2N/CO4dgU/ltIj3w/ryoAYv/qJgZXlA7S8mI3q3Ugr0mgRpYULWeCpkD5fOBZGBiBj7ziOpNveHe5e3uzcM1Wzrwy53KqSkmEMIzER1cGmZAs9/F+C1G2CPWdx+jsRXaU06+S7Nel5UR1UwaJ2Vh4pEuWWJKPHKFYVCuwD9R8HXp0QeEfdB7BH25QffsgnunwNf39TYhsrJRvOwNfsuadzvIq8QaKJ1rYAd0iL9/gD73CsGy3eKMjgVkPwC8x9v3zL40pAnqeimHwXfcNX4kQFVw/skDB8akrhDf7zhJLN1MAoU/FaM37KL6YMZcW1CNqyp1bSo7Ebspu3/dsJYqqZU4NmHJPaPW2lDZS8xpr/CeEVvxTcZBTjveO9tGJghOY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Cruise-of-the--Cachalot--Round-the-World-After-Sperm-Whales_1356
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
